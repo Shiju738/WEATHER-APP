@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
+// ignore_for_file: avoid_print, use_build_context_synchronously, deprecated_member_use, prefer_const_constructors, sort_child_properties_last
 
 import 'package:flutter/material.dart';
 import 'package:weather_project/controller/controller.dart';
@@ -18,7 +18,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final weatherProvider = Provider.of<WeatherProvider>(context);
+    final weatherProvider = Provider.of<WeatherDataProvider>(context);
 
     return Scaffold(
       backgroundColor: Colors.grey,
@@ -60,12 +60,13 @@ class _SearchPageState extends State<SearchPage> {
                     String cityName = placeController.text;
                     if (cityName.isNotEmpty) {
                       await weatherProvider.fetchCityInfo(cityName);
-                      CityModel? cityInfo = weatherProvider.cityInfo;
+                      CityModel? cityInfo = weatherProvider.cityModel;
 
                       if (cityInfo != null) {
                         print(cityName);
                         print(cityInfo.lat);
                         print(cityInfo.lon);
+
                         weatherProvider.fetchWeatherData(
                             cityInfo.lat, cityInfo.lon);
                         weatherProvider.fetchWeatherDataList(
@@ -83,24 +84,62 @@ class _SearchPageState extends State<SearchPage> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('City Not Found'),
-                              content:
-                                  const Text('Please enter a valid city name.'),
+                              backgroundColor: Colors.black,
+                              title: const Text(
+                                'City Not Found',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              content: const Text(
+                                'Please enter a valid city name.',
+                                style: TextStyle(color: Colors.white),
+                              ),
                               actions: [
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
-                                  child: const Text('OK'),
+                                  child: const Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ],
                             );
                           },
                         );
                       }
+                    } else {
+                      // Handle empty city name
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.black,
+                            title: const Text(
+                              'Empty City Name',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            content: const Text(
+                              'Please enter a city name.',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     }
                   },
-                  child: const Text('Search'),
+                  child: Text('Search'),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.black,
                     onPrimary: Colors.white,

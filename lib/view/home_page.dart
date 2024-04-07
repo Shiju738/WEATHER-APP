@@ -1,11 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:internationalization/internationalization.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_project/controller/controller.dart';
-import 'package:weather_project/model/forcast_model.dart';
 import 'package:weather_project/view/search_page.dart';
-import 'package:weather_project/widget/fort_cast.dart';
-import 'package:weather_project/widget/sample.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -19,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<WeatherProvider>(
+    return Consumer<WeatherDataProvider>(
       builder: (context, weatherProvider, _) {
         String formattedDate = DateFormat.yMMMd().format(
           DateTime.now(),
@@ -30,7 +29,7 @@ class _HomePageState extends State<HomePage> {
           appBar: AppBar(
             backgroundColor: Colors.grey,
             leading: const Icon(Icons.location_on),
-            title: Text(weatherProvider.cityInfo?.name ?? ''),
+            title: Text(weatherProvider.cityModel?.name ?? ''),
             actions: [
               IconButton(
                 onPressed: () {
@@ -52,15 +51,24 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     Container(
+                      height: MediaQuery.of(context).size.height * 0.24,
                       width: double.infinity,
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color.fromARGB(150, 66, 72, 67),
+                            Colors.white,
+                            Color.fromARGB(150, 66, 72, 67),
+                          ],
+                        ),
                         borderRadius: BorderRadius.all(
                           Radius.circular(17),
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -71,9 +79,7 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(
-                              height: 50,
-                            ),
+                            const Spacer(),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -86,16 +92,22 @@ class _HomePageState extends State<HomePage> {
                                   style: const TextStyle(fontSize: 14),
                                 ),
                                 IconButton(
-                                    onPressed: () {
-                                      print(weatherProvider.weatherDataList);
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                WeatherScreen(),
-                                          ));
-                                    },
-                                    icon: const Icon(Icons.refresh))
+                                  onPressed: () async {
+                                    // Call the method to fetch weather data again
+                                    await weatherProvider.fetchWeatherData(
+                                        weatherProvider.cityModel?.lat ?? 0.0,
+                                        weatherProvider.cityModel?.lon ?? 0.0);
+
+                                    // Call the method to fetch forecast data again
+                                    await weatherProvider.fetchWeatherDataList(
+                                        weatherProvider.cityModel?.lat ?? 0.0,
+                                        weatherProvider.cityModel?.lon ?? 0.0);
+
+                                    // Trigger a rebuild of the UI
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                )
                               ],
                             )
                           ],
@@ -106,6 +118,7 @@ class _HomePageState extends State<HomePage> {
                       height: 20,
                     ),
                     Container(
+                      height: MediaQuery.of(context).size.height * 0.1,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.all(
@@ -115,6 +128,7 @@ class _HomePageState extends State<HomePage> {
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -122,7 +136,14 @@ class _HomePageState extends State<HomePage> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Feel like'),
+                                    const Text(
+                                      'Feel like',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
                                     Row(
                                       children: [
                                         const Icon(Icons.ac_unit),
@@ -135,7 +156,14 @@ class _HomePageState extends State<HomePage> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Feel like'),
+                                    const Text(
+                                      'Feel like',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
                                     Padding(
                                       padding: const EdgeInsets.only(right: 40),
                                       child: Row(
@@ -162,15 +190,23 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Expanded(
                           child: Container(
+                            height: MediaQuery.of(context).size.height * 0.1,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             padding: const EdgeInsets.all(10),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Wind Speed'),
+                                const Text(
+                                  'Wind Speed',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
                                 Row(
                                   children: [
                                     const Icon(Icons.wind_power_outlined),
@@ -185,15 +221,23 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Container(
+                            height: MediaQuery.of(context).size.height * 0.1,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             padding: const EdgeInsets.all(10),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Humidity'),
+                                const Text(
+                                  'Humidity',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
                                 Row(
                                   children: [
                                     const Icon(Icons.water_drop_outlined),
@@ -210,7 +254,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    // Inside the Consumer widget of the HomePage
+                    // Forecast Data Container
                     Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,
@@ -228,55 +272,55 @@ class _HomePageState extends State<HomePage> {
                                 SizedBox(
                                   width: 5,
                                 ),
-                                Text('5 day Forecast')
+                                Text(
+                                  '5 day Forecast',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )
                               ],
                             ),
                             const SizedBox(
                               height: 10,
                             ),
-                            // Use Consumer to rebuild UI when forecast data changes
-                            Consumer<WeatherProvider>(
+                            Consumer<WeatherDataProvider>(
                               builder: (context, weatherProvider, _) {
-                                print(weatherProvider.weatherDataList);
-                                // Extract the forecast list from the WeatherProvider
-                                final List<Forcastmodel>? forecast =
+                                final weatherDataList =
                                     weatherProvider.weatherDataList;
 
-                                // Check if forecast list is not null and not empty
-                                if (forecast != null && forecast.isNotEmpty) {
-                                  // If forecast list is available, build a ListView to display forecast data
-                                  return ListView.builder(
-                                    itemCount: forecast.length,
-                                    itemBuilder: (context, index) {
-                                      // Extract forecast data for the current index
-                                      final data = forecast[index];
+                                if (weatherDataList != null &&
+                                    weatherDataList.length >= 5) {
+                                  // Sort the weather data list by date
+                                  weatherDataList.sort(
+                                      (a, b) => a.dtTxt.compareTo(b.dtTxt));
 
-                                      // Build a column with forecast information
-                                      return Column(
-                                        children: [
-                                          // Display weather icon and temperature
-                                          Row(
+                                  return Column(
+                                    children: [
+                                      for (int i = 0; i < 5; i++)
+                                        ListTile(
+                                          title: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              const Icon(Icons.sunny),
-                                              const SizedBox(width: 5),
                                               Text(
-                                                  '${data.list![0].main!.tempMax} °C'), // Display max temperature
-                                              const SizedBox(width: 5),
+                                                // Format the date from the forecast data
+                                                DateFormat('EEE, MMM d').format(
+                                                    weatherDataList[i].dtTxt),
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
                                               Text(
-                                                  '${data.list![0].main!.tempMin} °C'), // Display min temperature
-                                              const Spacer(),
+                                                // Display the max and min temperatures
+                                                '${weatherDataList[i].main.tempMax.round()}° / ${weatherDataList[i].main.tempMin.round()}°',
+                                              ),
                                             ],
                                           ),
-                                          const Divider(),
-                                          const SizedBox(height: 10),
-                                        ],
-                                      );
-                                    },
+                                        ),
+                                    ],
                                   );
                                 } else {
-                                  // If forecast list is null or empty, display a message
+                                  // If forecast list is null or doesn't have enough data, display a message
                                   return const Text(
-                                      'No forecast data available');
+                                      'Not enough forecast data available');
                                 }
                               },
                             ),

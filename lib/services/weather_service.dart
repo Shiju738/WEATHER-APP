@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -38,7 +36,7 @@ class WeatherAPIService {
         Uri.parse('$baseUrl1?lat=$lat&lon=$lon&appid=$apiKey&units=metric'));
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonData = json.decode(response.body);
+      final Map<String, dynamic>? jsonData = json.decode(response.body);
 
       if (jsonData != null) {
         return WeatherDatas.fromJson(jsonData);
@@ -50,33 +48,50 @@ class WeatherAPIService {
     }
   }
 
-  Future<List<Forcastmodel>?> getWeatherDataList(double lat, double lon) async {
+  Future<List<ForecastModel>?> getWeatherDataList(
+      double lat, double lon) async {
     final response = await http.get(
-      Uri.parse('$baseUrl2?lat=$lat&lon=$lon&appid=$apiKey&units=metric'),
+      Uri.parse('$baseUrl2?lat=$lat&lon=$lon&appid=$apiKey&units=metric&cnt=5'),
     );
 
-    if (response.statusCode == 200) {
-      final String responseBody = response.body;
-      if (responseBody.isNotEmpty) {
-        final Map<String, dynamic> jsonData = json.decode(responseBody);
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load weather data list: ${response.statusCode}',
+      );
+    }
 
-        final List<dynamic> weatherDataList = jsonData['list'];
 
-        List<Forcastmodel> parsedWeatherDataList = [];
 
-        for (var item in weatherDataList) {
-          final weatherData = Forcastmodel.fromJson(item);
+    try {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
 
+      // Handle null or missing 'cnt' field in JSON response
+      final int cnt = jsonData['cnt'] ?? 0;
+      final List<dynamic>? weatherDataList = jsonData['list'];
+
+      if (weatherDataList == null) {
+        throw Exception('Weather data list is null');
+      }
+
+      final List<ForecastModel> parsedWeatherDataList = [];
+
+      final currentDate = DateTime.now();
+
+      for (var i = 0; i < cnt; i++) {
+        final ForecastModel weatherData =
+            ForecastModel.fromJson(weatherDataList[i]);
+        final forecastDate =
+            DateTime.fromMillisecondsSinceEpoch(weatherData.dt * 1000);
+
+        if (forecastDate.isAfter(currentDate) &&
+            forecastDate.difference(currentDate).inDays <= 5) {
           parsedWeatherDataList.add(weatherData);
         }
-
-        return parsedWeatherDataList;
-      } else {
-        throw Exception('Response body is empty');
       }
-    } else {
-      throw Exception(
-          'Failed to load weather data list: ${response.statusCode}');
+
+      return parsedWeatherDataList;
+    } catch (error) {
+      throw Exception('Failed to decode JSON response');
     }
   }
 }
