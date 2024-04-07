@@ -30,9 +30,9 @@ class _SearchPageState extends State<SearchPage> {
               const Text(
                 'Enter a city name to search:',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Center(

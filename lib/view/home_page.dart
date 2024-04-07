@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:internationalization/internationalization.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +25,8 @@ class _HomePageState extends State<HomePage> {
         return Scaffold(
           backgroundColor: Colors.grey,
           appBar: AppBar(
+            elevation: 0,
+            shadowColor: Colors.transparent,
             backgroundColor: Colors.grey,
             leading: const Icon(Icons.location_on),
             title: Text(weatherProvider.cityModel?.name ?? ''),
@@ -41,7 +41,8 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 icon: const Icon(Icons.search),
-              )
+              ),
+              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
             ],
           ),
           body: SafeArea(
@@ -73,11 +74,16 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Today $formattedDate', // Display today's date
+                              'Today $formattedDate',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
+                            ),
+                            Text(
+                              '${weatherProvider.weatherData?.weather?[0].main}',
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w500),
                             ),
                             const Spacer(),
                             Row(
@@ -157,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
-                                      'Feel like',
+                                      'Humidity is making it',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -303,10 +309,18 @@ class _HomePageState extends State<HomePage> {
                                               Text(
                                                 // Format the date from the forecast data
                                                 DateFormat('EEE, MMM d').format(
-                                                    weatherDataList[i].dtTxt),
+                                                    DateTime.now().add(
+                                                        Duration(days: i + 1))),
                                                 style: const TextStyle(
                                                     fontWeight:
                                                         FontWeight.bold),
+                                              ),
+                                              Text(
+                                                weatherDataList[i]
+                                                    .weather[0]
+                                                    .description,
+                                                style: const TextStyle(
+                                                    fontSize: 13),
                                               ),
                                               Text(
                                                 // Display the max and min temperatures

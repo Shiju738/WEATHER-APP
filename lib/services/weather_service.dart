@@ -1,19 +1,15 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:weather_project/const/api_const.dart';
 import 'package:weather_project/model/city_model.dart';
 import 'package:weather_project/model/forcast_model.dart';
 import 'package:weather_project/model/weater_data_model.dart';
 
 class WeatherAPIService {
-  final String apiKey = 'b39c7464ab56df782ab4652f7da5fd99';
-  final String baseUrl = 'http://api.openweathermap.org/geo/1.0';
-  final String baseUrl1 = 'https://api.openweathermap.org/data/2.5/weather';
-  final String baseUrl2 = 'https://api.openweathermap.org/data/2.5/forecast';
-
   Future<CityModel?> getCityInfo(String cityName) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/direct?q=$cityName&limit=0&appid=$apiKey'),
+      Uri.parse('$geo/direct?q=$cityName&limit=0&appid=$apiKey'),
     );
 
     if (response.statusCode == 200) {
@@ -33,7 +29,7 @@ class WeatherAPIService {
 
   Future<WeatherDatas?> getWeatherData(double lat, double lon) async {
     final response = await http.get(
-        Uri.parse('$baseUrl1?lat=$lat&lon=$lon&appid=$apiKey&units=metric'));
+        Uri.parse('$weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic>? jsonData = json.decode(response.body);
@@ -51,7 +47,7 @@ class WeatherAPIService {
   Future<List<ForecastModel>?> getWeatherDataList(
       double lat, double lon) async {
     final response = await http.get(
-      Uri.parse('$baseUrl2?lat=$lat&lon=$lon&appid=$apiKey&units=metric&cnt=5'),
+      Uri.parse('$forecast?lat=$lat&lon=$lon&appid=$apiKey&units=metric&cnt=5'),
     );
 
     if (response.statusCode != 200) {
@@ -59,8 +55,6 @@ class WeatherAPIService {
         'Failed to load weather data list: ${response.statusCode}',
       );
     }
-
-
 
     try {
       final Map<String, dynamic> jsonData = json.decode(response.body);
