@@ -1,74 +1,97 @@
+
+// // main.dart
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:weather_project/controller/five_day_weather_controller.dart';
+
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return ChangeNotifierProvider(
+//       create: (_) => FiveDayWeatherProvider(),
+//       child: MaterialApp(
+//         title: 'Weather App',
+//         theme: ThemeData(
+//           primarySwatch: Colors.blue,
+//         ),
+//         home: WeatherScreen(),
+//       ),
+//     );
+//   }
+// }
+
+// class WeatherScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     final weatherProvider = Provider.of<FiveDayWeatherProvider>(context);
+//     weatherProvider.fetchWeather(
+//         37.7749, -122.4194); // San Francisco's coordinates
+
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Weather Forecast'),
+//       ),
+//       body: Consumer<FiveDayWeatherProvider>(
+//         builder: (context, provider, child) {
+//           if (provider.weatherForecast.isEmpty) {
+//             return Center(
+//               child: CircularProgressIndicator(),
+//             );
+//           } else {
+//             return ListView.builder(
+//               itemCount: provider.weatherForecast.length,
+//               itemBuilder: (context, index) {
+//                 final weather = provider.weatherForecast[index];
+//                 return ListTile(
+//                   title: Text('${weather.date}'),
+//                   subtitle:
+//                       Text('${weather.description} - ${weather.temperature}°C'),
+//                 );
+//               },
+//             );
+//           }
+//         },
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_project/controller/controller.dart';
-import 'package:weather_project/model/weater_data_model.dart';
 
-class WeatherForecastWidget extends StatelessWidget {
+class WeatherScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(
-          Radius.circular(15),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Weather Forecast'),
+      ),
+      body: Center(
+        child: Consumer<WeatherProvider>(
+          builder: (context, weatherProvider, _) {
+            if (weatherProvider.isLoading) {
+              return CircularProgressIndicator();
+            } else if (weatherProvider.errorMessage != null) {
+              return Text('Error: ${weatherProvider.errorMessage}');
+            } else {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('City: ${weatherProvider.cityInfo?.name ?? ""}'),
+                  SizedBox(height: 16),
+                  Text('Temperature: ${weatherProvider.weatherData?.main!.tempMax ?? ""}'),
+                  SizedBox(height: 16),
+                  // Display other weather details here
+                ],
+              );
+            }
+          },
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Icon(Icons.calendar_month),
-                SizedBox(width: 5),
-                Text('5 day Forecast'),
-              ],
-            ),
-            SizedBox(height: 10),
-            Consumer<WeatherProvider>(
-              builder: (context, weatherProvider, _) {
-                final forecastData = weatherProvider.forecastData;
-                if (forecastData != null && forecastData.isNotEmpty) {
-                  // Get tomorrow's date
-                  final now = DateTime.now();
-                  final tomorrow = now.add(Duration(days: 1));
-                  
-                  // Find tomorrow's weather forecast
-                  final tomorrowForecast = forecastData.firstWhere((forecast) =>
-                      DateTime.fromMillisecondsSinceEpoch(forecast.dt! * 1000).day ==
-                      tomorrow.day);
-
-                  // Build the UI for tomorrow's weather
-                  return buildWeatherItem(tomorrowForecast);
-                } else {
-                  return Text('No forecast data available');
-                }
-              },
-            ),
-            Divider(),
-            // You can repeat this pattern for subsequent days
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildWeatherItem(WeatherDatas weatherData) {
-    return Column(
-      children: [
-        SizedBox(height: 10),
-        Row(
-          children: [
-            Icon(Icons.sunny),
-            SizedBox(width: 5),
-            Text('Tomorrow'),
-            SizedBox(width: 5),
-            Text("${weatherData.weather?[0].description}"),
-            Spacer(),
-            Text('${weatherData.main?.tempMin} °C/${weatherData.main?.tempMax} °C'),
-          ],
-        ),
-      ],
     );
   }
 }

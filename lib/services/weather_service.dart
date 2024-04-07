@@ -1,7 +1,10 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:convert';
 
-import 'package:weather_project/model/city_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:weather_project/model/city_model.dart';
+import 'package:weather_project/model/forcast_model.dart';
 import 'package:weather_project/model/weater_data_model.dart';
 
 class WeatherAPIService {
@@ -9,8 +12,6 @@ class WeatherAPIService {
   final String baseUrl = 'http://api.openweathermap.org/geo/1.0';
   final String baseUrl1 = 'https://api.openweathermap.org/data/2.5/weather';
   final String baseUrl2 = 'https://api.openweathermap.org/data/2.5/forecast';
-
-  WeatherAPIService();
 
   Future<CityModel?> getCityInfo(String cityName) async {
     final response = await http.get(
@@ -37,7 +38,8 @@ class WeatherAPIService {
         Uri.parse('$baseUrl1?lat=$lat&lon=$lon&appid=$apiKey&units=metric'));
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic>? jsonData = json.decode(response.body);
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+
       if (jsonData != null) {
         return WeatherDatas.fromJson(jsonData);
       } else {
@@ -48,23 +50,33 @@ class WeatherAPIService {
     }
   }
 
-  Future<List<WeatherDatas>?> getWeatherForecast(double lat, double lon,
-      {int count = 5}) async {
+  Future<List<Forcastmodel>?> getWeatherDataList(double lat, double lon) async {
     final response = await http.get(
-      Uri.parse(
-          '$baseUrl2?lat=$lat&lon=$lon&appid=$apiKey&units=metric&cnt=$count'),
+      Uri.parse('$baseUrl2?lat=$lat&lon=$lon&appid=$apiKey&units=metric'),
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonData = json.decode(response.body);
-      final List<dynamic> forecastData = jsonData['list'];
-      print(forecastData);
-      List<WeatherDatas> forecastList =
-          forecastData.map((data) => WeatherDatas.fromJson(data)).toList();
-      return forecastList;
+      final String responseBody = response.body;
+      if (responseBody.isNotEmpty) {
+        final Map<String, dynamic> jsonData = json.decode(responseBody);
+
+        final List<dynamic> weatherDataList = jsonData['list'];
+
+        List<Forcastmodel> parsedWeatherDataList = [];
+
+        for (var item in weatherDataList) {
+          final weatherData = Forcastmodel.fromJson(item);
+
+          parsedWeatherDataList.add(weatherData);
+        }
+
+        return parsedWeatherDataList;
+      } else {
+        throw Exception('Response body is empty');
+      }
     } else {
       throw Exception(
-          'Failed to load weather forecast data: ${response.statusCode}');
+          'Failed to load weather data list: ${response.statusCode}');
     }
   }
 }

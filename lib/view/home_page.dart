@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:internationalization/internationalization.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_project/controller/controller.dart';
+import 'package:weather_project/model/forcast_model.dart';
 import 'package:weather_project/view/search_page.dart';
 import 'package:weather_project/widget/fort_cast.dart';
+import 'package:weather_project/widget/sample.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -76,15 +78,23 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  '${weatherProvider.WeatherData?.main?.temp} °C',
+                                  '${weatherProvider.weatherData?.main?.temp} °C',
                                   style: const TextStyle(fontSize: 30),
                                 ),
                                 Text(
-                                  ' ${weatherProvider.WeatherData?.main?.tempMax.toString()}°C,  ${weatherProvider.WeatherData?.main?.tempMin.toString()}°C',
+                                  ' ${weatherProvider.weatherData?.main?.tempMax.toString()}°C,  ${weatherProvider.weatherData?.main?.tempMin.toString()}°C',
                                   style: const TextStyle(fontSize: 14),
                                 ),
                                 IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      print(weatherProvider.weatherDataList);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                WeatherScreen(),
+                                          ));
+                                    },
                                     icon: const Icon(Icons.refresh))
                               ],
                             )
@@ -117,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         const Icon(Icons.ac_unit),
                                         Text(
-                                            '${weatherProvider.WeatherData?.main?.feelsLike} °C'),
+                                            '${weatherProvider.weatherData?.main?.feelsLike} °C'),
                                       ],
                                     )
                                   ],
@@ -132,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           // Replace Icons.ac_unit with the desired icon
                                           Text(
-                                              "${weatherProvider.WeatherData?.weather?[0].description}"),
+                                              "${weatherProvider.weatherData?.weather?[0].description}"),
                                         ],
                                       ),
                                     )
@@ -165,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     const Icon(Icons.wind_power_outlined),
                                     Text(
-                                        '${weatherProvider.WeatherData?.wind?.speed}')
+                                        '${weatherProvider.weatherData?.wind?.speed}')
                                   ],
                                 )
                               ],
@@ -188,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     const Icon(Icons.water_drop_outlined),
                                     Text(
-                                        '${weatherProvider.WeatherData?.main?.humidity} %')
+                                        '${weatherProvider.weatherData?.main?.humidity} %')
                                   ],
                                 )
                               ],
@@ -200,6 +210,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 10,
                     ),
+                    // Inside the Consumer widget of the HomePage
                     Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,
@@ -207,81 +218,72 @@ class _HomePageState extends State<HomePage> {
                           Radius.circular(15),
                         ),
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
                         child: Column(
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(Icons.calendar_month),
                                 SizedBox(
                                   width: 5,
                                 ),
-                                Text('5 day Brought_cast')
+                                Text('5 day Forecast')
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
-                            Row(
-                              children: [
-                                Icon(Icons.sunny),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text('Tommorow'),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text('Sunny'),
-                                Spacer(),
-                                Text('24 °C/27 °C')
-                              ],
+                            // Use Consumer to rebuild UI when forecast data changes
+                            Consumer<WeatherProvider>(
+                              builder: (context, weatherProvider, _) {
+                                print(weatherProvider.weatherDataList);
+                                // Extract the forecast list from the WeatherProvider
+                                final List<Forcastmodel>? forecast =
+                                    weatherProvider.weatherDataList;
+
+                                // Check if forecast list is not null and not empty
+                                if (forecast != null && forecast.isNotEmpty) {
+                                  // If forecast list is available, build a ListView to display forecast data
+                                  return ListView.builder(
+                                    itemCount: forecast.length,
+                                    itemBuilder: (context, index) {
+                                      // Extract forecast data for the current index
+                                      final data = forecast[index];
+
+                                      // Build a column with forecast information
+                                      return Column(
+                                        children: [
+                                          // Display weather icon and temperature
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.sunny),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                  '${data.list![0].main!.tempMax} °C'), // Display max temperature
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                  '${data.list![0].main!.tempMin} °C'), // Display min temperature
+                                              const Spacer(),
+                                            ],
+                                          ),
+                                          const Divider(),
+                                          const SizedBox(height: 10),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  // If forecast list is null or empty, display a message
+                                  return const Text(
+                                      'No forecast data available');
+                                }
+                              },
                             ),
-                            Divider(),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.sunny),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text('Wednesday'),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text('Sunny'),
-                                Spacer(),
-                                Text('24 °C/27 °C')
-                              ],
-                            ),
-                            Divider(),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.sunny),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text('Thursday'),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text('Sunny'),
-                                Spacer(),
-                                Text('24 °C/27 °C')
-                              ],
-                            ),
-                            Divider()
                           ],
                         ),
                       ),
-                    ),
-                    WeatherForecastWidget()
+                    )
                   ],
                 ),
               ),

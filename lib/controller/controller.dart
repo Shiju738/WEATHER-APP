@@ -1,63 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:weather_project/model/city_model.dart';
+import 'package:weather_project/model/forcast_model.dart';
 import 'package:weather_project/model/weater_data_model.dart';
 import 'package:weather_project/services/weather_service.dart';
 
 class WeatherProvider extends ChangeNotifier {
-  final WeatherAPIService _weatherAPIService = WeatherAPIService();
-  List<WeatherDatas>? _forecastData;
+  WeatherAPIService _weatherAPIService = WeatherAPIService();
   CityModel? _cityInfo;
   WeatherDatas? _weatherData;
+  List<Forcastmodel>? _weatherDataList;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   CityModel? get cityInfo => _cityInfo;
-  WeatherDatas? get WeatherData => _weatherData;
-  List<WeatherDatas>? get forecastData => _forecastData;
+  WeatherDatas? get weatherData => _weatherData;
+  List<Forcastmodel>? get weatherDataList => _weatherDataList;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   Future<void> fetchCityInfo(String cityName) async {
+    _isLoading = true;
+    notifyListeners();
     try {
-      final cityInfo = await _weatherAPIService.getCityInfo(cityName);
-      if (cityInfo != null) {
-        _cityInfo = cityInfo;
-        notifyListeners();
-      } else {
-        // Handle city not found
-      }
+      _cityInfo = await _weatherAPIService.getCityInfo(cityName);
+      _errorMessage = null;
     } catch (e) {
-      // Handle error
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
   Future<void> fetchWeatherData(double lat, double lon) async {
+    _isLoading = true;
+    notifyListeners();
     try {
-      final weatherData = await _weatherAPIService.getWeatherData(lat, lon);
-      if (weatherData != null) {
-        _weatherData = weatherData;
-        notifyListeners();
-      } else {
-        // Handle weather data not found
-        print('Weather data is null');
-      }
+      _weatherData = await _weatherAPIService.getWeatherData(lat, lon);
+      _errorMessage = null;
     } catch (e) {
-      // Handle error
-      print('Error fetching weather data: $e');
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  Future<void> fetchWeatherForecast(double lat, double lon,
-      {int count = 5}) async {
+  Future<void> fetchWeatherDataList(double lat, double lon) async {
+    _isLoading = true;
+    notifyListeners();
     try {
-      final forecastData =
-          await _weatherAPIService.getWeatherForecast(lat, lon, count: count);
-      if (forecastData != null) {
-        _forecastData = forecastData;
-        notifyListeners();
-      } else {
-        // Handle forecast data not found
-        print('Forecast data is null');
-      }
+      _weatherDataList = await _weatherAPIService.getWeatherDataList(lat, lon);
+      _errorMessage = null;
     } catch (e) {
-      // Handle error
-      print('Error fetching weather forecast data: $e');
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_project/controller/controller.dart';
-import 'package:weather_project/controller/weather_forcast.dart';
 import 'package:weather_project/view/search_page.dart';
 
 void main() {
@@ -11,7 +10,6 @@ void main() {
         ChangeNotifierProvider(
           create: (context) => WeatherProvider(),
         ),
-
       ],
       child: const MyApp(),
     ),

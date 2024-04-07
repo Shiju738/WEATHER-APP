@@ -68,10 +68,13 @@ class _SearchPageState extends State<SearchPage> {
                         print(cityInfo.lon);
                         weatherProvider.fetchWeatherData(
                             cityInfo.lat, cityInfo.lon);
+                        weatherProvider.fetchWeatherDataList(
+                            cityInfo.lat, cityInfo.lon);
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HomePage(),
+                            builder: (context) => const HomePage(),
                           ),
                         );
                       } else {
