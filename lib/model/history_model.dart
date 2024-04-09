@@ -1,7 +1,6 @@
-class CityHistory {
+class CityTemp {
   final String cityName;
+  final double temperature;
 
-  CityHistory({
-    required this.cityName,
-  });
+  CityTemp({required this.cityName, required this.temperature});
 }

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:weather_project/model/city_model.dart';
 import 'package:weather_project/model/forcast_model.dart';
+import 'package:weather_project/model/history_model.dart';
 import 'package:weather_project/model/weater_data_model.dart';
 import 'package:weather_project/services/weather_service.dart';
 
@@ -14,7 +15,9 @@ class WeatherDataProvider extends ChangeNotifier {
   List<ForecastModel>? _forecastData;
   List<ForecastModel>? _weatherDataList;
   List<ForecastModel>? get weatherDataList => _weatherDataList;
+  final List<CityTemp> _cityTempList = [];
   // Getter to access the forecast data list
+  List<CityTemp> get cityTempList => _cityTempList;
   CityModel? get cityModel => _cityModel;
   WeatherDatas? get weatherData => _weatherData;
   List<ForecastModel>? get forecastData => _forecastData;
@@ -45,5 +48,12 @@ class WeatherDataProvider extends ChangeNotifier {
       print('Error fetching weather data list: $error');
       // Handle error as per your requirement, like showing a snackbar or retry option.
     }
+  }
+
+  void addCityTemp(String cityName, double temperature) {
+    _cityTempList.add(CityTemp(cityName: cityName, temperature: temperature));
+    print(temperature);
+    print(cityName);
+    notifyListeners(); // Notify listeners about the change in the list
   }
 }

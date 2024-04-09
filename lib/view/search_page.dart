@@ -81,6 +81,10 @@ class _SearchPageState extends State<SearchPage> {
                         if (weatherProvider.weatherData != null &&
                             weatherProvider.weatherData!.main != null &&
                             weatherProvider.weatherData!.main!.temp != null) {
+                          double temperature = weatherProvider
+                              .weatherData!.main!.temp!
+                              .toDouble();
+                          weatherProvider.addCityTemp(cityName, temperature);
                           print(weatherProvider.weatherData!.main!.temp);
                         } else {
                           print('Weather data not available');
