@@ -30,9 +30,10 @@ class _SearchPageState extends State<SearchPage> {
               const Text(
                 'Enter a city name to search:',
                 style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold),
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 10),
               Center(
@@ -67,10 +68,23 @@ class _SearchPageState extends State<SearchPage> {
                         print(cityInfo.lat);
                         print(cityInfo.lon);
 
-                        weatherProvider.fetchWeatherData(
-                            cityInfo.lat, cityInfo.lon);
-                        weatherProvider.fetchWeatherDataList(
-                            cityInfo.lat, cityInfo.lon);
+                        await weatherProvider.fetchWeatherData(
+                          cityInfo.lat,
+                          cityInfo.lon,
+                        );
+                        await weatherProvider.fetchWeatherDataList(
+                          cityInfo.lat,
+                          cityInfo.lon,
+                        );
+
+                        // Check if weather data is available
+                        if (weatherProvider.weatherData != null &&
+                            weatherProvider.weatherData!.main != null &&
+                            weatherProvider.weatherData!.main!.temp != null) {
+                          print(weatherProvider.weatherData!.main!.temp);
+                        } else {
+                          print('Weather data not available');
+                        }
 
                         Navigator.push(
                           context,

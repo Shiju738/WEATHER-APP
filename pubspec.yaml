@@ -41,6 +41,12 @@ dependencies:
   another_flutter_splash_screen: ^1.2.0
   flutter_native_splash: ^2.3.11
   weather_icons: ^3.0.0
+  shared_preferences: ^2.2.2
+  hive_universal_cache: ^0.2.1
+  hive_flutter: ^1.1.0
+  sqflite: ^2.3.2
+  sqflite_common_ffi: ^2.1.1+1
+  sqflite_common: ^2.5.3
 
 dev_dependencies:
   flutter_test:

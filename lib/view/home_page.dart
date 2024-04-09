@@ -5,7 +5,7 @@ import 'package:weather_icons/weather_icons.dart';
 import 'package:weather_project/const/weather_icon.dart';
 import 'package:weather_project/controller/controller.dart';
 import 'package:weather_project/view/search_page.dart';
-import 'package:weather_project/widget/graph.dart';
+import 'package:weather_project/view/weather_history_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -36,14 +36,11 @@ class _HomePageState extends State<HomePage> {
         ? _buildLoadingScreen()
         : Consumer<WeatherDataProvider>(
             builder: (context, weatherProvider, _) {
-              String formattedDate = DateFormat.yMMMd().format(
-                DateTime.now(),
-              );
-
               return Scaffold(
                 backgroundColor: Colors.black,
                 appBar: AppBar(
-                  elevation: 0,
+                  titleSpacing: -10,
+                  elevation: 20,
                   shadowColor: Colors.transparent,
                   backgroundColor: Colors.black,
                   leading: const Icon(
@@ -69,12 +66,29 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.white,
                       ),
                     ),
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.more_vert,
-                          color: Colors.white,
-                        ))
+                    PopupMenuButton<String>(
+                      onSelected: (String value) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WeatherHistory(),
+                          ),
+                        );
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'item1',
+                          child: Text('History'),
+                        ),
+
+                        // Add more items as needed, or populate dynamically based on history
+                      ],
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
                 body: SafeArea(
@@ -165,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                                         padding:
                                             const EdgeInsets.only(bottom: 24),
                                         child: CircleAvatar(
-                                          backgroundColor: Color.fromARGB(
+                                          backgroundColor: const Color.fromARGB(
                                               146, 113, 113, 113),
                                           child: IconButton(
                                             onPressed: () async {
@@ -406,14 +420,15 @@ class _HomePageState extends State<HomePage> {
                             decoration: const BoxDecoration(
                               color: Color.fromARGB(255, 33, 33, 33),
                               borderRadius: BorderRadius.all(
-                                Radius.circular(25),
+                                Radius.circular(26),
                               ),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(13),
-                              child: Column(
-                                children: [
-                                  const Row(
+                            child: Column(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(
+                                      top: 20, left: 20, bottom: 10),
+                                  child: Row(
                                     children: [
                                       Icon(
                                         Icons.calendar_month,
@@ -430,89 +445,99 @@ class _HomePageState extends State<HomePage> {
                                       )
                                     ],
                                   ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Consumer<WeatherDataProvider>(
-                                    builder: (context, weatherProvider, _) {
-                                      final weatherDataList =
-                                          weatherProvider.weatherDataList;
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Consumer<WeatherDataProvider>(
+                                  builder: (context, weatherProvider, _) {
+                                    final weatherDataList =
+                                        weatherProvider.weatherDataList;
 
-                                      if (weatherDataList != null &&
-                                          weatherDataList.length >= 5) {
-                                        // Sort the weather data list by date
-                                        weatherDataList.sort((a, b) =>
-                                            a.dtTxt.compareTo(b.dtTxt));
+                                    if (weatherDataList != null &&
+                                        weatherDataList.length >= 5) {
+                                      // Sort the weather data list by date
+                                      weatherDataList.sort(
+                                          (a, b) => a.dtTxt.compareTo(b.dtTxt));
 
-                                        return Column(
-                                          children: [
-                                            for (int i = 0; i < 5; i++)
-                                              ListTile(
-                                                title: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    WeatherIcon(
-                                                      description:
-                                                          weatherDataList[i]
-                                                              .weather[0]
-                                                              .main,
-                                                      width: 24,
-                                                    ),
-                                                    // ignore: prefer_const_constructors
-                                                    SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(
-                                                      // Format the date from the forecast data into abbreviated day names
-                                                      DateFormat('EEEE').format(
-                                                        DateTime.now().add(
-                                                          Duration(days: i + 1),
+                                      return Column(
+                                        children: [
+                                          for (int i = 0; i < 5; i++)
+                                            Column(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      vertical: 13,
+                                                      horizontal: 20),
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      WeatherIcon(
+                                                        description:
+                                                            weatherDataList[i]
+                                                                .weather[0]
+                                                                .main,
+                                                        width: 24,
+                                                      ),
+                                                      // ignore: prefer_const_constructors
+                                                      SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Text(
+                                                        // Format the date from the forecast data into abbreviated day names
+                                                        DateFormat('EEEE')
+                                                            .format(
+                                                          DateTime.now().add(
+                                                            Duration(
+                                                                days: i + 1),
+                                                          ),
+                                                        ),
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                      const SizedBox(
+                                                        width: 10,
                                                       ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(
-                                                      weatherDataList[i]
-                                                          .weather[0]
-                                                          .main,
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 13,
+                                                      Text(
+                                                        weatherDataList[i]
+                                                            .weather[0]
+                                                            .main,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 13,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const Spacer(),
-                                                    Text(
-                                                      // Display the max and min temperatures
-                                                      '${weatherDataList[i].main.tempMax.round()}° / ${weatherDataList[i].main.tempMin.round()}°',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
+                                                      const Spacer(),
+                                                      Text(
+                                                        // Display the max and min temperatures
+                                                        '${weatherDataList[i].main.tempMax.round()}° / ${weatherDataList[i].main.tempMin.round()}°',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                          ],
-                                        );
-                                      } else {
-                                        // If forecast list is null or doesn't have enough data, display a message
-                                        return const Text(
-                                            'Not enough forecast data available');
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
+                                              ],
+                                            ),
+                                        ],
+                                      );
+                                    } else {
+                                      // If forecast list is null or doesn't have enough data, display a message
+                                      return const Text(
+                                          'Not enough forecast data available');
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                         
                         ],
                       ),
                     ),
