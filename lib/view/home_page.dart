@@ -550,7 +550,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildLoadingScreen() {
     return const Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.black,
       body: Center(
         child: CircularProgressIndicator(),
       ),

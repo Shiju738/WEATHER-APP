@@ -51,9 +51,15 @@ class WeatherDataProvider extends ChangeNotifier {
   }
 
   void addCityTemp(String cityName, double temperature) {
-    _cityTempList.add(CityTemp(cityName: cityName, temperature: temperature));
-    print(temperature);
-    print(cityName);
-    notifyListeners(); // Notify listeners about the change in the list
+    // Check if the city name already exists in the list
+    bool isDuplicate =
+        _cityTempList.any((cityTemp) => cityTemp.cityName == cityName);
+
+    if (!isDuplicate) {
+      _cityTempList.add(CityTemp(cityName: cityName, temperature: temperature));
+      print(temperature);
+      print(cityName);
+      notifyListeners(); // Notify listeners about the change in the list
+    }
   }
 }
